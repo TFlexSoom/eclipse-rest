@@ -1,3 +1,11 @@
+{-# LANGUAGE DuplicateRecordFields #-}
+module Tiles (
+
+) where
+
+import Misc ( UniqueId(..) )
+
+
 {-
   Tile Stacks
     I
