@@ -5,6 +5,7 @@ module Game (
 
 import Misc ( Phase(..) )
 import Collectable ( Collectable(..) )
+import Rules ( Rules (..) )
 
 type Roll = Int
 
@@ -24,6 +25,7 @@ class Game a where
   getCurrentTurnIndex :: a -> Int
   getPhase :: a -> Phase
 
+  getRules :: a -> Rules
   getResearchStore :: a -> ResearchStore
   getDiceRoll :: a -> [Roll]
   getTiles :: a -> Tiles

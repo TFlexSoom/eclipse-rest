@@ -1,10 +1,22 @@
-{-
-Research Store ----
-  List of {
-      numeric id,
-      description,
-      Type,
-      Max Cost,
-      Min Cost
-  }
--}
+{-# LANGUAGE DuplicateRecordFields #-}
+module ResearchStore (
+  ResearchType,
+  Research(..),
+  ResearchStore(..)
+) where
+
+import Misc ( UniqueId(..) )
+
+type ResearchType = Int -- 1 -> Military | 2 -> Grid | 3 -> Economy
+
+-- These are not collectables since they can be discounted by the research track
+-- and players cannot have an infinite amount
+data Research = Research {
+  id :: UniqueId,
+  description :: String,
+  Type :: ResearchType,
+  MaxCost :: Cost,
+  MinCost :: Cost
+}
+
+type ResearchStore = [Research]
