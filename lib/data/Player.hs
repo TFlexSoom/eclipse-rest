@@ -45,3 +45,10 @@ Per Round
   Collectables 
     Map of id -> Development Tile | Discovery Tile | Species Bonus
 -}
+
+
+
+data Ship = Ship {
+  owner :: PlayerId,
+  type :: ShipType
+}

@@ -1,11 +1,11 @@
 {-# LANGUAGE DuplicateRecordFields #-}
-module ResearchStore (
+module Data.ResearchStore (
   ResearchType,
   Research(..),
   ResearchStore(..)
 ) where
 
-import Misc ( UniqueId(..) )
+import Data.Misc ( UniqueId )
 
 type ResearchType = Int -- 1 -> Military | 2 -> Grid | 3 -> Economy
 

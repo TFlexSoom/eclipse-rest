@@ -1,10 +1,10 @@
 {-# LANGUAGE DuplicateRecordFields #-}
-module Rules (
+module Data.Rules (
   Species(..),
   Rules(..)
 ) where
 
-import Misc ( UniqueId(..) )
+import Data.Misc ( UniqueId )
 
 data Species = {
   id :: UniqueId,

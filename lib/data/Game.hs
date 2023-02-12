@@ -1,11 +1,11 @@
 {-# LANGUAGE DuplicateRecordFields #-}
-module Game (
+module Data.Game (
   Game(..)
 ) where
 
-import Misc ( Phase(..) )
-import Collectable ( Collectable(..) )
-import Rules ( Rules (..) )
+import Data.Misc ( Phase(..) )
+import Data.Collectable ( Collectable(..) )
+import Data.Rules ( Rules (..) )
 
 type Roll = Int
 

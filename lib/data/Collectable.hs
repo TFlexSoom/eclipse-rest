@@ -1,13 +1,13 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 
-module Collectable (
+module Data.Collectable (
   Collectable(..),
   Discovery(..),
   Development(..)
 )
 where
 
-import Misc ( UniqueId, Cost(..) )
+import Data.Misc ( UniqueId, Cost )
 
 class Collectable a where
   uniqueId :: a -> UniqueId
