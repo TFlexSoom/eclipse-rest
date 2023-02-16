@@ -1,4 +1,3 @@
-{-# LANGUAGE DuplicateRecordFields #-}
 module Data.Rules (
   Species(..),
   Rules(..)
@@ -6,7 +5,7 @@ module Data.Rules (
 
 import Data.Misc ( UniqueId )
 
-data Species = {
+data Species = Species {
   id :: UniqueId,
   name :: String,
   description :: String,

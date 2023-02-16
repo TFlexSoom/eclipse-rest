@@ -45,10 +45,22 @@ Per Round
   Collectables 
     Map of id -> Development Tile | Discovery Tile | Species Bonus
 -}
+module Data.Player (
+  PlayerId,
+  Ship(..),
+  PlayerStatic(..),
+  PlayerDynamic(..)
+) where
 
+import Data.Misc ( UniqueId, ShipType )
 
+type PlayerId = UniqueId
+
+-- TODO
+data PlayerStatic = PlayerStatic ()
+data PlayerDynamic = PlayerDynamic ()
 
 data Ship = Ship {
-  owner :: PlayerId,
-  type :: ShipType
+  shipOwner :: PlayerId,
+  shipType :: ShipType
 }

@@ -1,5 +1,3 @@
-{-# LANGUAGE DuplicateRecordFields #-}
-
 module Data.Collectable (
   Collectable(..),
   Discovery(..),
@@ -9,6 +7,8 @@ where
 
 import Data.Misc ( UniqueId, Cost )
 
+import qualified Data.Map as Map
+
 class Collectable a where
   uniqueId :: a -> UniqueId
   description :: a -> String
@@ -16,30 +16,27 @@ class Collectable a where
 
 
 data Discovery = Discovery {
-  id :: UniqueId,
-  description :: String
+  idImpl :: UniqueId,
+  descriptionImpl :: String
 }
 
 -- private
 zerocost :: Cost
-zerocost = {
-  money = 0,
-  science = 0,
-  material = 0
-}
+zerocost = Map.empty
+-- TODO
 
-instance Collectable Discovery
-  uniqueId disc = (id :: Discovery -> UniqueId) disc
-  description disc = (description :: Discovery -> String) disc
-  cost disc = zerocost
+instance Collectable Discovery where
+  uniqueId Discovery{idImpl=idImpl} = idImpl
+  description Discovery{descriptionImpl=descriptionImpl} = descriptionImpl
+  cost _ = zerocost
 
 data Development = Development {
-  id :: UniqueId,
-  description :: String
-  cost :: Cost
+  idImpl :: UniqueId,
+  descriptionImpl :: String,
+  costImpl :: Cost
 }
 
-instance Collectable Development
-  uniqueId dev = (id :: Development -> UniqueId) dev
-  description dev = (description :: Development -> String) dev
-  cost dev = (cost :: Development -> Cost) dev
+instance Collectable Development where
+  uniqueId Development{idImpl=idImpl} = idImpl
+  description Development{descriptionImpl=descriptionImpl} = descriptionImpl
+  cost Development{costImpl=costImpl} = costImpl

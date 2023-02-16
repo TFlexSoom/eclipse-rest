@@ -1,8 +1,8 @@
-cabal-version:      2.4
-name:               eclipse-rest
-version:            0.0.0.0
-author:             Tristan Hilbert (aka TFlexSoom)
-maintainer:         tchilbert@live.com
+cabal-version:  2.4
+name:           eclipse-rest
+version:        0.0.0.0
+author:         Tristan Hilbert (aka TFlexSoom)
+maintainer:     tchilbert@live.com
 description:    Please see the README on GitHub at <https://github.com/tflexsoom/eclipse-rest#readme>
 homepage:       https://github.com/tflexsoom/eclipse-rest#readme
 bug-reports:    https://github.com/tflexsoom/eclipse-rest/issues
@@ -18,16 +18,32 @@ extra-source-files:
 library eclipse-lib
   hs-source-dirs:
       lib
-  build-depends: base ^>=4.16.0.0
+  exposed-modules: Eclipse
+  other-modules: 
+      Data.Collectable
+    , Data.Game
+    , Data.Misc
+    , Data.Player
+    , Data.ResearchStore
+    , Data.Rules
+    , Data.Tile
+  build-depends: 
+      base ^>=4.16.4.0
+    , containers
   default-language: Haskell2010
+  default-extensions: 
+    DuplicateRecordFields
 
 executable eclipse-rest
-    main-is:          Main.hs
-    build-depends:    
-        eclipse-lib
-      , base ^>=4.16.0.0
-    hs-source-dirs:   app
-    default-language: Haskell2010
+  main-is:          Main.hs
+  build-depends:    
+      eclipse-lib
+    , base ^>=4.16.4.0
+  hs-source-dirs:   app
+  default-language: Haskell2010
+  default-extensions: 
+    DuplicateRecordFields
+
 
 -- test-suite eclipse-rest
 --  type: exitcode-stdio-1.0

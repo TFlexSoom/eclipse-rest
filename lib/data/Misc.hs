@@ -1,4 +1,4 @@
-module Misc (
+module Data.Misc (
     ResourceType(..),
     PlanetResourceType(..),
     ShipType(..),
@@ -14,7 +14,7 @@ data ResourceType = MONEY | SCIENCE | MATERIAL
     deriving( Read, Show, Enum, Eq, Ord )
 
 data PlanetResourceType = PURE ResourceType | MONEY_SCIENCE | WILD
-    deriving( Read, Show, Enum, Eq, Ord )
+    deriving( Read, Show, Eq, Ord )
     
 data ShipType = INTERCEPTOR | CRUISER | DREADNOUGHT | STARBASE
     deriving( Read, Show, Enum, Eq, Ord )
@@ -29,4 +29,4 @@ data Building = MONOLITH | ORBITAL | WARP_PAD
     
 type UniqueId = Int
 
-type Cost = Map ResourceType Int
+type Cost = Map.Map ResourceType Int
