@@ -1,64 +1,53 @@
-{-
-Per Game
-  Player ID
-  Species ID
-  Ambassador Limit
-  Ship Bonuses
-  Disk Tax Map/Int->Int
-  Color
-
-Per Round
-  Player ID
-  Ambassador List:
-    - Reputation
-    - Ambassador
-    
-  Blueprint Matrix
-  Tech Map List
-  Disk Uses Map
-
-  Counters:
-    Money
-    Science
-    Material
-    Money Income
-    Science Income
-    Material Income
-    Money Neutrino
-    Science Neutrino
-    Material Neutrino
-    Influence Disks
-    Colony Ships
-    Ambassadors
-
-  Species Bonus Counters?:
-    Species Counter 1
-    Species Counter 2
-    Species Counter 3
-  
-  Ships:
-    Interceptors
-    Cruisers
-    Dreadnoughts
-    Starbases
-  
-  Collectables 
-    Map of id -> Development Tile | Discovery Tile | Species Bonus
--}
 module Data.Player (
   PlayerId,
-  Ship(..),
-  PlayerStatic(..),
-  PlayerDynamic(..)
+  SpeciesId,
+  DiplomacySlot(..),
+  DiplomacyToken(..),
+  Influence(..),
+  Tech(..),
+  Player(..),
+  Species(..),
+  Ship(..)
 ) where
 
-import Data.Misc ( UniqueId, ShipType )
+import Data.Misc ( UniqueId, ShipType, Cost(..) )
+import Data.ResearchStore ( ResearchType, Research(..) )
+
+import qualified Data.Map as Map
 
 type PlayerId = UniqueId
+type SpeciesId = UniqueId
 
--- TODO
-data PlayerStatic = PlayerStatic ()
-data PlayerDynamic = PlayerDynamic ()
+data DiplomacySlot = FILLED DiplomacyToken | OPEN | OPEN_REPUTATION | OPEN_AMBASSADOR
+data DiplomacyToken = REPUTATION Int | AMBASSADOR PlayerId
+
+data Influence = TAX Int | INFLUENCED Int
+
+data Tech = EMPTY Int | TECHED Research
+
+data Blueprint = Blueprint () -- TODO
+
+data Player = Player {
+  species :: SpeciesId,
+  diplomacy :: [Maybe DiplomacySlot],
+  ambassadors :: Int,
+  colonyShips :: [Bool],
+  resources :: Cost,
+  income :: Cost,
+  neutrino :: Cost,
+  influence :: [Influence], -- Make an object instead of manual work
+  blueprint :: Blueprint,
+  tech :: Map.Map ResearchType Tech
+}
+
+data Species = Species {
+  species :: SpeciesId,
+  diplomacyLimit :: Int,
+  ambassadorLimit :: Int,
+  reputationLimit :: Int,
+  description :: String,
+  bonuses :: [Player -> Player]
+}
 
 data Ship = Ship {
   shipOwner :: PlayerId,

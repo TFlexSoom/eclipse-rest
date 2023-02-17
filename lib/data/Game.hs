@@ -6,7 +6,7 @@ import Data.Misc ( UniqueId, Phase(..) )
 import Data.Collectable ( Collectable(..) )
 import Data.Rules ( Rules (..) )
 import Data.ResearchStore( ResearchStore(..) )
-import Data.Player ( PlayerId, PlayerStatic(..), PlayerDynamic(..))
+import Data.Player ( PlayerId, Player(..) )
 import Data.Tile ( TileMap(..) )
 
 import qualified Data.Maybe as Maybe
@@ -17,11 +17,8 @@ type Roll = Int
 type PlayerAction = Int
 
 class Game a where
-  getPlayerStaticAll :: a -> [PlayerStatic]
-  getPlayerStatic :: a -> PlayerId -> PlayerStatic
-
-  getPlayerDynamicAll :: a -> [PlayerDynamic]
-  getPlayerDynamic :: a -> PlayerId -> PlayerDynamic
+  getPlayerAll :: a -> [Player]
+  getPlayer :: a -> PlayerId -> Player
 
   -- getRandom :: a -> RandomType -> RandomData
   -- getCollectable :: Collectable c => a -> UniqueId -> c

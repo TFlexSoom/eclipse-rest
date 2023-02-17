@@ -6,7 +6,7 @@ module Data.ResearchStore (
 
 import Data.Misc ( UniqueId, Cost(..) )
 
-type ResearchType = Int -- 1 -> Military | 2 -> Grid | 3 -> Economy
+type ResearchType = Int -- 1 -> Military | 2 -> Efficiency | 3 -> Grid 
 
 -- These are not collectables since they can be discounted by the research track
 -- and players cannot have an infinite amount
