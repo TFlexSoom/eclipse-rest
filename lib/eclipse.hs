@@ -1,6 +1,10 @@
 module Eclipse (
-    Collectable(..)
+    Rules(..),
+    PlayerAction(..),
+    Game(..),
+    newGame
 ) where
 
-import Data.Collectable (
-    Collectable(..))
+import Data.Game ( PlayerAction(..), Game(..), newGame )
+import Data.Rules ( Rules(..) )
+

@@ -4,11 +4,13 @@ module Data.Tile (
   PlanetSlot(..),
   Tile(..),
   TileMap(..),
+  TileMapImpl,
   newTileMap
 ) where
 
 import Data.Misc ( UniqueId(..), PlanetResourceType, Building )
 import Data.Player ( PlayerId, Ship(..) )
+import Data.Rules ( Rules(..) )
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 
@@ -68,8 +70,8 @@ instance TileMap TileMapImpl where
   -- TODO do complex logic to unstub this
   placeTile tileMap (t, offset) (distance, angle) = error "This Function is not Implemented!"
 
-newTileMap :: TileMapImpl
-newTileMap = TileMapImpl {
+newTileMap :: Rules -> TileMapImpl
+newTileMap rulesParam = TileMapImpl {
   stacks = Map.empty, -- TODO Gen from Rules
   placements = Map.empty, -- TODO Needs HomeSystems + Placements
   graph = Map.empty, -- TODO Needs HomeSystems + Placements

@@ -1,6 +1,18 @@
 module Main where
 
-import Eclipse ( Collectable(..))
+import Eclipse ( 
+    Rules(..),
+    PlayerAction(..),
+    Game(..),
+    newGame)
 
 main :: IO ()
-main = putStrLn "Hello, Haskell!"
+main = do {
+    putStrLn "Starting Game Test";
+    rules <- return Rules {
+            species = []
+        };
+    game <- return (newGame rules);
+    game <- return (update game NOTHING);
+    putStrLn "Finished Game Test!"
+}
