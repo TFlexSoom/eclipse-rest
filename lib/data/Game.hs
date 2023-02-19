@@ -9,12 +9,13 @@ import Data.ResearchStore( ResearchStore(..) )
 import Data.Player ( PlayerId, Player(..) )
 import Data.Tile ( TileMap(..) )
 
+import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 
 type Roll = Int
 
 -- TODO
-type PlayerAction = Int
+data PlayerAction = NOTHING
 
 class Game a where
   getPlayerAll :: a -> [Player]
@@ -36,4 +37,27 @@ class Game a where
 
   update :: a -> PlayerAction -> a
 
--- TODO Implement Game
+data GameCollectable = GameCollectable {
+  uniqueIdImpl :: UniqueId,
+  descriptionImpl :: String,
+  costImpl :: Cost
+}
+
+instance Collectable GameCollectable where
+  uniqueId GameCollectable{uniqueIdImpl=uniqueIdImpl} = uniqueIdImpl
+  descriptionImpl GameCollectable{descriptionImpl=descriptionImpl} = descriptionImpl
+  cost GameCollectable{costImpl=costImpl} = costImpl
+
+copyToGameCollectable :: Collectable a => a -> GameCollectable
+copyToGameCollectable collectable = GameCollectable {
+  uniqueIdImpl = uniqueId collectable,
+  descriptionImpl = description collectable,
+  costImpl = costImpl collectable
+}
+
+data GameImpl = GameImpl {
+  players :: Map.Map PlayerId Player,
+  publicCollectable :: Map.Map UniqueId GameCollectable
+  ownedCollectable :: Map.Map (PlayerId, UniqueId) GameCollectable
+  
+}
