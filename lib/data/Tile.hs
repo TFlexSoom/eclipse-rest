@@ -8,9 +8,9 @@ module Data.Tile (
   newTileMap
 ) where
 
-import Data.Misc ( UniqueId(..), PlanetResourceType, Building )
-import Data.Player ( PlayerId, Ship(..) )
-import Data.Rules ( Rules(..) )
+import qualified Data.Misc as Misc
+import qualified Data.Player as Player
+import qualified Data.Rules as Rules
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 
@@ -20,26 +20,26 @@ data TileDegree = I | II | III
   deriving (Read, Show, Enum, Eq, Ord)
 
 data PlanetSlot = PlanetSlot {
-  resourceType :: PlanetResourceType,
+  resourceType :: Misc.PlanetResourceType,
   isOccupied :: Bool,
   isOrbital :: Bool
 }
 
 data Tile = Tile {
-  id :: UniqueId,
-  disk :: Maybe.Maybe PlayerId,
+  id :: Misc.UniqueId,
+  disk :: Maybe.Maybe Player.PlayerId,
   coordinate :: (Int, Int),
   slots :: [PlanetSlot],
-  ships :: [Ship],
-  buildings :: [Building],
+  ships :: [Player.Ship],
+  buildings :: [Misc.Building],
   gates :: [Bool]
 }
 
 class TileMap a where
   getStackCount :: a -> TileDegree -> Int
   getCenter :: a -> Tile
-  getHomeSystem :: a -> PlayerId -> Tile
-  getTile :: a -> UniqueId -> Tile
+  getHomeSystem :: a -> Player.PlayerId -> Tile
+  getTile :: a -> Misc.UniqueId -> Tile
   getTileAt :: a -> (Int, Int) -> Maybe.Maybe Tile
   getAllTiles :: a -> [Tile]
 
@@ -48,10 +48,10 @@ class TileMap a where
 
 data TileMapImpl = TileMapImpl {
   stacks :: Map.Map TileDegree [Tile],
-  placements :: Map.Map (Int, Int) UniqueId,
-  graph :: Map.Map UniqueId Tile,
+  placements :: Map.Map (Int, Int) Misc.UniqueId,
+  graph :: Map.Map Misc.UniqueId Tile,
   center :: Tile,
-  homeSystems :: Map.Map PlayerId Tile
+  homeSystems :: Map.Map Player.PlayerId Tile
 }
 
 instance TileMap TileMapImpl where
@@ -70,7 +70,7 @@ instance TileMap TileMapImpl where
   -- TODO do complex logic to unstub this
   placeTile tileMap (t, offset) (distance, angle) = error "This Function is not Implemented!"
 
-newTileMap :: Rules -> TileMapImpl
+newTileMap :: Rules.Rules -> TileMapImpl
 newTileMap rulesParam = TileMapImpl {
   stacks = Map.empty, -- TODO Gen from Rules
   placements = Map.empty, -- TODO Needs HomeSystems + Placements

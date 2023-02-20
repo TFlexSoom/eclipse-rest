@@ -3,10 +3,10 @@ module Data.Rules (
   Rules(..)
 ) where
 
-import Data.Misc ( UniqueId )
+import qualified Data.Misc as Misc
 
 data Species = Species {
-  id :: UniqueId,
+  id :: Misc.UniqueId,
   name :: String,
   description :: String,
   exemptions :: String

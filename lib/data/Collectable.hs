@@ -5,25 +5,24 @@ module Data.Collectable (
 )
 where
 
-import Data.Misc ( UniqueId, Cost )
 
+import qualified Data.Misc as Misc
 import qualified Data.Map as Map
 
 class Collectable a where
-  uniqueId :: a -> UniqueId
+  uniqueId :: a -> Misc.UniqueId
   description :: a -> String
-  cost :: a -> Cost
+  cost :: a -> Misc.Cost
 
 
 data Discovery = Discovery {
-  idImpl :: UniqueId,
+  idImpl :: Misc.UniqueId,
   descriptionImpl :: String
 }
 
 -- private
-zerocost :: Cost
-zerocost = Map.empty
--- TODO
+zerocost :: Misc.Cost
+zerocost = Map.fromList [(Misc.MONEY, 0), (Misc.SCIENCE, 0), (Misc.MATERIAL, 0)]
 
 instance Collectable Discovery where
   uniqueId Discovery{idImpl=idImpl} = idImpl
@@ -31,9 +30,9 @@ instance Collectable Discovery where
   cost _ = zerocost
 
 data Development = Development {
-  idImpl :: UniqueId,
+  idImpl :: Misc.UniqueId,
   descriptionImpl :: String,
-  costImpl :: Cost
+  costImpl :: Misc.Cost
 }
 
 instance Collectable Development where

@@ -1,18 +1,14 @@
 module Main where
 
-import Eclipse ( 
-    Rules(..),
-    PlayerAction(..),
-    Game(..),
-    newGame)
+import qualified Eclipse as Eclipse
 
 main :: IO ()
 main = do {
     putStrLn "Starting Game Test";
-    rules <- return Rules {
+    rules <- return Eclipse.Rules {
             species = []
         };
-    game <- return (newGame rules);
-    game <- return (update game NOTHING);
+    game <- return (Eclipse.newGame rules);
+    game <- return (Eclipse.update game Eclipse.NOTHING);
     putStrLn "Finished Game Test!"
 }

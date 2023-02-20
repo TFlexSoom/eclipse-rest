@@ -6,12 +6,12 @@ module Data.Game (
   newGame
 ) where
 
-import Data.Misc ( UniqueId, Phase(..), Cost )
-import Data.Collectable ( Collectable(..) )
-import Data.Rules ( Rules (..) )
-import Data.ResearchStore( ResearchStore(..) )
-import Data.Player ( PlayerId, Player(..) )
-import Data.Tile ( TileMap(..), TileMapImpl, newTileMap )
+import qualified Data.Misc as Misc
+import qualified Data.Collectable as Collectable
+import qualified Data.Rules as Rules
+import qualified Data.ResearchStore as ResearchStore
+import qualified Data.Player as Player
+import qualified Data.Tile as Tile
 
 import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
@@ -22,48 +22,48 @@ data Roll = RED Int | ORANGE Int | YELLOW Int
 data PlayerAction = NOTHING
 
 data GameCollectable = GameCollectable {
-  uniqueIdImpl :: UniqueId,
+  uniqueIdImpl :: Misc.UniqueId,
   descriptionImpl :: String,
-  costImpl :: Cost
+  costImpl :: Misc.Cost
 }
 
-copyToGameCollectable :: Collectable a => a -> GameCollectable
+copyToGameCollectable :: Collectable.Collectable a => a -> GameCollectable
 copyToGameCollectable collectable = GameCollectable {
-  uniqueIdImpl = uniqueId collectable,
-  descriptionImpl = description collectable,
-  costImpl = cost collectable
+  uniqueIdImpl = Collectable.uniqueId collectable,
+  descriptionImpl = Collectable.description collectable,
+  costImpl = Collectable.cost collectable
 }
 
 class Game a where
-  getPlayerAll :: a -> [Player]
-  getPlayer :: a -> PlayerId -> Player
+  getPlayerAll :: a -> [Player.Player]
+  getPlayer :: a -> Player.PlayerId -> Player.Player
 
   -- TODO Would be cool to output any Collectable here rather than strict GameCollectable
-  applyOnPublicCollectable :: a -> UniqueId -> Maybe.Maybe GameCollectable
-  applyOnOwnedCollectable :: a -> UniqueId -> PlayerId -> Maybe.Maybe GameCollectable
+  applyOnPublicCollectable :: a -> Misc.UniqueId -> Maybe.Maybe GameCollectable
+  applyOnOwnedCollectable :: a -> Misc.UniqueId -> Player.PlayerId -> Maybe.Maybe GameCollectable
 
-  getCurrentTurn :: a -> PlayerId
+  getCurrentTurn :: a -> Player.PlayerId
   getCurrentTurnIndex :: a -> Int
-  getPhase :: a -> Phase
+  getPhase :: a -> Misc.Phase
 
-  getRules :: a -> Rules
-  getResearchStore :: a -> ResearchStore
+  getRules :: a -> Rules.Rules
+  getResearchStore :: a -> ResearchStore.ResearchStore
   getDiceRoll :: a -> [Roll]
-  getTiles :: a -> TileMapImpl
+  getTiles :: a -> Tile.TileMapImpl
 
   update :: a -> PlayerAction -> Maybe a
 
 data GameImpl = GameImpl {
-  players :: Map.Map PlayerId Player,
-  publicCollectable :: Map.Map UniqueId GameCollectable,
-  ownedCollectable :: Map.Map (PlayerId, UniqueId) GameCollectable,
-  turnOrder :: [PlayerId],
+  players :: Map.Map Player.PlayerId Player.Player,
+  publicCollectable :: Map.Map Misc.UniqueId GameCollectable,
+  ownedCollectable :: Map.Map (Player.PlayerId, Misc.UniqueId) GameCollectable,
+  turnOrder :: [Player.PlayerId],
   currentTurn :: Int,
-  phase :: Phase,
-  rules :: Rules,
-  researchStore :: ResearchStore,
+  phase :: Misc.Phase,
+  rules :: Rules.Rules,
+  researchStore :: ResearchStore.ResearchStore,
   recentRoll :: [Roll],
-  tileMap :: TileMapImpl
+  tileMap :: Tile.TileMapImpl
   -- TODO Random Gen Stacks
 }
 
@@ -88,16 +88,16 @@ instance Game GameImpl where
 
   update = updateGameImpl
 
-newGame :: Rules -> GameImpl
+newGame :: Rules.Rules -> GameImpl
 newGame rulesParam = GameImpl {
   players = Map.empty,
   publicCollectable = Map.empty,
   ownedCollectable = Map.empty,
   turnOrder = [],
   currentTurn = 0,
-  phase = ACTION_PHASE,
+  phase = Misc.ACTION_PHASE,
   rules = rulesParam,
   researchStore = [],
   recentRoll = [],
-  tileMap = newTileMap rulesParam
+  tileMap = Tile.newTileMap rulesParam
 }

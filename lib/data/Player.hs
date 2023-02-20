@@ -10,20 +10,19 @@ module Data.Player (
   Ship(..)
 ) where
 
-import Data.Misc ( UniqueId, ShipType, Cost(..) )
-import Data.ResearchStore ( ResearchType, Research(..) )
-
+import qualified Data.Misc as Misc
+import qualified Data.ResearchStore as ResearchStore
 import qualified Data.Map as Map
 
-type PlayerId = UniqueId
-type SpeciesId = UniqueId
+type PlayerId = Misc.UniqueId
+type SpeciesId = Misc.UniqueId
 
-data DiplomacySlot = FILLED DiplomacyToken | OPEN | OPEN_REPUTATION | OPEN_AMBASSADOR
 data DiplomacyToken = REPUTATION Int | AMBASSADOR PlayerId
+data DiplomacySlot = FILLED DiplomacyToken | OPEN | OPEN_REPUTATION | OPEN_AMBASSADOR
 
-data Influence = TAX Int | INFLUENCED Int
+data Influence = TAX {-signed-} Int | INFLUENCED {-signed-} Int
 
-data Tech = EMPTY Int | TECHED Research
+data Tech = EMPTY {-signed-} Int | TECHED ResearchStore.Research
 
 data Blueprint = Blueprint () -- TODO
 
@@ -32,12 +31,12 @@ data Player = Player {
   diplomacy :: [Maybe DiplomacySlot],
   ambassadors :: Int,
   colonyShips :: [Bool],
-  resources :: Cost,
-  income :: Cost,
-  neutrino :: Cost,
+  resources :: Misc.Cost,
+  income :: Misc.Cost,
+  neutrino :: Misc.Cost,
   influence :: [Influence], -- Make an object instead of manual work
   blueprint :: Blueprint,
-  tech :: Map.Map ResearchType Tech
+  tech :: Map.Map ResearchStore.ResearchType Tech
 }
 
 data Species = Species {
@@ -51,5 +50,5 @@ data Species = Species {
 
 data Ship = Ship {
   shipOwner :: PlayerId,
-  shipType :: ShipType
+  shipType :: Misc.ShipType
 }

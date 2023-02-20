@@ -4,18 +4,18 @@ module Data.ResearchStore (
   ResearchStore(..)
 ) where
 
-import Data.Misc ( UniqueId, Cost(..) )
+import qualified Data.Misc as Misc
 
 type ResearchType = Int -- 1 -> Military | 2 -> Efficiency | 3 -> Grid 
 
 -- These are not collectables since they can be discounted by the research track
 -- and players cannot have an infinite amount
 data Research = Research {
-  idImpl :: UniqueId,
+  idImpl :: Misc.UniqueId,
   description :: String,
   researchType :: ResearchType,
-  maxCost :: Cost,
-  minCost :: Cost
+  maxCost :: Misc.Cost,
+  minCost :: Misc.Cost
 }
 
 type ResearchStore = [Research]
