@@ -4,6 +4,10 @@ module Data.Player
     DiplomacyToken (..),
     Influence (..),
     Tech (..),
+    ShipBonus (..),
+    ShipPart (..),
+    ShipBlueprint (..),
+    ShipBlueprints (..),
     Player (..),
     Ship (..),
   )
@@ -23,30 +27,37 @@ data Influence = TAX {-signed-} Int | INFLUENCED {-signed-} Int
 
 data Tech = EMPTY {-signed-} Int | TECHED ResearchStore.Research
 
+data ShipBonus = INITIATIVE Int | POWER Int | COMPUTER Int | SHIELD Int
+
 data ShipPart = ShipPart
   { partId :: Misc.UniqueId,
     description :: String
   }
 
-data Blueprint = Blueprint
-  { interceptor :: [ShipPart],
-    cruiser :: [ShipPart],
-    dreadnought :: [ShipPart],
-    starbase :: [ShipPart],
-    orbital :: [ShipPart]
+data ShipBlueprint = ShipBlueprint {
+  blueprint :: [Maybe ShipPart],
+  bonus :: [ShipBonus]
+}
+
+data ShipBlueprints = ShipBlueprints
+  { interceptor :: ShipBlueprint,
+    cruiser :: ShipBlueprint,
+    dreadnought :: ShipBlueprint,
+    starbase :: ShipBlueprint,
+    orbital :: ShipBlueprint
   }
 
 data Player = Player
   { description :: String,
-    diplomacy :: [Maybe DiplomacySlot],
+    diplomacy :: [DiplomacySlot],
     ambassadors :: Int,
     colonyShips :: [Bool],
     resources :: Misc.Cost,
     income :: Misc.Cost,
     neutrino :: Misc.Cost,
     influence :: [Influence],
-    blueprint :: Blueprint,
-    tech :: Map.Map ResearchStore.ResearchType Tech
+    blueprints :: ShipBlueprints,
+    tech :: Map.Map ResearchStore.ResearchType [Tech]
   }
 
 data Ship = Ship

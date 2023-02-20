@@ -17,12 +17,13 @@ type Rotation = Int -- Integer from [0, 5] representing 60 degree rotations. 0 =
 
 data PlanetSlot = PlanetSlot
   { resourceType :: Misc.PlanetResourceType,
+    isAdvanced :: Bool,
     isOccupied :: Bool,
     isOrbital :: Bool
   }
 
 data Tile = Tile
-  { id :: Misc.UniqueId,
+  { uniqueId :: Misc.UniqueId,
     disk :: Maybe.Maybe Player.PlayerId,
     coordinate :: (Int, Int),
     slots :: [PlanetSlot],
@@ -81,15 +82,3 @@ newTileMap stacks center homeSystems =
     }
   where
     playerCount = Map.size homeSystems
-
--- newTile :: Tile
--- newTile =
---   Tile
---     { id = 0, -- TODO Gen from Rules
---       disk = Nothing,
---       coordinate = (0, 0),
---       slots = [], -- TODO Gen From Rules
---       ships = [],
---       buildings = [],
---       gates = [] -- TODO Gen From Rules
---     }
