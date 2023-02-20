@@ -24,7 +24,18 @@ data Influence = TAX {-signed-} Int | INFLUENCED {-signed-} Int
 
 data Tech = EMPTY {-signed-} Int | TECHED ResearchStore.Research
 
-data Blueprint = Blueprint () -- TODO
+data ShipPart = ShipPart {
+  partId :: Misc.UniqueId,
+  description :: String
+}
+
+data Blueprint = Blueprint {
+  interceptor :: [ShipPart],
+  cruiser :: [ShipPart],
+  dreadnought :: [ShipPart],
+  starbase :: [ShipPart],
+  orbital :: [ShipPart]
+}
 
 data Player = Player {
   species :: SpeciesId,
