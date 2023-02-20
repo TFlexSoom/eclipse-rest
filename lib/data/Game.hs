@@ -1,7 +1,6 @@
 module Data.Game
   ( Roll (..),
     PlayerAction (..),
-    GameCollectable (..),
     Game (..),
     newGame,
   )
@@ -16,38 +15,29 @@ import qualified Data.ResearchStore as ResearchStore
 import qualified Data.Rules as Rules
 import qualified Data.Tile as Tile
 
+type GameId = Misc.UniqueId
+
 data Roll = RED Int | ORANGE Int | YELLOW Int
+
+type GameException = GameImpl -> Bool
 
 -- TODO
 data PlayerAction = NOTHING
 
-data GameCollectable = GameCollectable
-  { uniqueIdImpl :: Misc.UniqueId,
-    descriptionImpl :: String,
-    costImpl :: Misc.Cost
-  }
-
-copyToGameCollectable :: Collectable.Collectable a => a -> GameCollectable
-copyToGameCollectable collectable =
-  GameCollectable
-    { uniqueIdImpl = Collectable.uniqueId collectable,
-      descriptionImpl = Collectable.description collectable,
-      costImpl = Collectable.cost collectable
-    }
-
 class Game a where
+  getGameId :: a -> GameId
   getPlayerAll :: a -> [Player.Player]
   getPlayer :: a -> Player.PlayerId -> Player.Player
 
-  -- TODO Would be cool to output any Collectable here rather than strict GameCollectable
-  applyOnPublicCollectable :: a -> Misc.UniqueId -> Maybe.Maybe GameCollectable
-  applyOnOwnedCollectable :: a -> Misc.UniqueId -> Player.PlayerId -> Maybe.Maybe GameCollectable
+  applyOnPublicCollectable :: a -> Misc.UniqueId -> Maybe.Maybe Collectable.Collectable
+  applyOnOwnedCollectable :: a -> Misc.UniqueId -> Player.PlayerId -> Maybe.Maybe Collectable.Collectable
 
   getCurrentTurn :: a -> Player.PlayerId
   getCurrentTurnIndex :: a -> Int
   getPhase :: a -> Misc.Phase
 
-  getRules :: a -> Rules.Rules
+  -- Rules seem to heavy to provide with a game
+  -- getRules :: a -> Rules.Rules
   getResearchStore :: a -> ResearchStore.ResearchStore
   getDiceRoll :: a -> [Roll]
   getTiles :: a -> Tile.TileMapImpl
@@ -55,17 +45,19 @@ class Game a where
   update :: a -> PlayerAction -> Maybe a
 
 data GameImpl = GameImpl
-  { players :: Map.Map Player.PlayerId Player.Player,
-    publicCollectable :: Map.Map Misc.UniqueId GameCollectable,
-    ownedCollectable :: Map.Map (Player.PlayerId, Misc.UniqueId) GameCollectable,
+  { gameId :: GameId,
+    players :: Map.Map Player.PlayerId Player.Player,
+    publicCollectable :: Map.Map Misc.UniqueId Collectable.Collectable,
+    ownedCollectable :: Map.Map (Player.PlayerId, Misc.UniqueId) Collectable.Collectable,
     turnOrder :: [Player.PlayerId],
     currentTurn :: Int,
     phase :: Misc.Phase,
-    rules :: Rules.Rules,
     researchStore :: ResearchStore.ResearchStore,
+    researchPile :: ResearchStore.ResearchStore,
     recentRoll :: [Roll],
-    tileMap :: Tile.TileMapImpl
-    -- TODO Random Gen Stacks
+    tileMap :: Tile.TileMapImpl,
+    discoveries :: [Collectable.Collectable],
+    developments :: [Collectable.Collectable]
   }
 
 updateGameImpl :: GameImpl -> PlayerAction -> Maybe GameImpl
@@ -73,6 +65,7 @@ updateGameImpl game@GameImpl {} NOTHING = Just game
 updateGameImpl _ _ = Nothing
 
 instance Game GameImpl where
+  getGameId GameImpl {gameId = gameId} = gameId
   getPlayerAll GameImpl {players = players} = Map.elems players
   getPlayer GameImpl {players = players} = (Map.!) players
 
@@ -82,7 +75,8 @@ instance Game GameImpl where
   getCurrentTurn GameImpl {turnOrder = turnOrder, currentTurn = currentTurn} = (!!) turnOrder currentTurn
   getCurrentTurnIndex GameImpl {currentTurn = currentTurn} = currentTurn
   getPhase GameImpl {phase = phase} = phase
-  getRules GameImpl {rules = rules} = rules
+
+  -- getRules GameImpl {rules = rules} = rules
   getResearchStore GameImpl {researchStore = researchStore} = researchStore
   getDiceRoll GameImpl {recentRoll = recentRoll} = recentRoll
   getTiles GameImpl {tileMap = tileMap} = tileMap
@@ -98,8 +92,7 @@ newGame rulesParam =
       turnOrder = [],
       currentTurn = 0,
       phase = Misc.ACTION_PHASE,
-      rules = rulesParam,
       researchStore = [],
       recentRoll = [],
-      tileMap = Tile.newTileMap rulesParam
+      tileMap = Rules.getTileMapFromRules rulesParam
     }

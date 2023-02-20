@@ -1,12 +1,10 @@
 module Data.Player
   ( PlayerId,
-    SpeciesId,
     DiplomacySlot (..),
     DiplomacyToken (..),
     Influence (..),
     Tech (..),
     Player (..),
-    Species (..),
     Ship (..),
   )
 where
@@ -16,8 +14,6 @@ import qualified Data.Misc as Misc
 import qualified Data.ResearchStore as ResearchStore
 
 type PlayerId = Misc.UniqueId
-
-type SpeciesId = Misc.UniqueId
 
 data DiplomacyToken = REPUTATION Int | AMBASSADOR PlayerId
 
@@ -41,25 +37,16 @@ data Blueprint = Blueprint
   }
 
 data Player = Player
-  { species :: SpeciesId,
+  { description :: String,
     diplomacy :: [Maybe DiplomacySlot],
     ambassadors :: Int,
     colonyShips :: [Bool],
     resources :: Misc.Cost,
     income :: Misc.Cost,
     neutrino :: Misc.Cost,
-    influence :: [Influence], -- Make an object instead of manual work
+    influence :: [Influence],
     blueprint :: Blueprint,
     tech :: Map.Map ResearchStore.ResearchType Tech
-  }
-
-data Species = Species
-  { species :: SpeciesId,
-    diplomacyLimit :: Int,
-    ambassadorLimit :: Int,
-    reputationLimit :: Int,
-    description :: String,
-    bonuses :: [Player -> Player]
   }
 
 data Ship = Ship

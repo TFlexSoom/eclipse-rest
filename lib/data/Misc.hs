@@ -4,6 +4,7 @@ module Data.Misc
     ShipType (..),
     Phase (..),
     Building (..),
+    TileDegree (..),
     UniqueId,
     Cost,
   )
@@ -23,9 +24,11 @@ data ShipType = INTERCEPTOR | CRUISER | DREADNOUGHT | STARBASE
 data Phase = ACTION_PHASE | COMBAT_PHASE | UPKEEP_PHASE | CLEANUP_PHASE
   deriving (Read, Show, Enum, Eq, Ord)
 
--- With Shrines we made need an astricks type system so these can
--- be looked up lazily
+-- TODO | UNIQUE UniqueId
 data Building = MONOLITH | ORBITAL | WARP_PAD
+  deriving (Read, Show, Eq, Ord)
+
+data TileDegree = I | II | III
   deriving (Read, Show, Enum, Eq, Ord)
 
 type UniqueId = Int

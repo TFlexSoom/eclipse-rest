@@ -1,39 +1,35 @@
 module Data.Collectable
   ( Collectable (..),
-    Discovery (..),
-    Development (..),
+    discovery,
+    development,
   )
 where
 
 import qualified Data.Map as Map
 import qualified Data.Misc as Misc
 
-class Collectable a where
-  uniqueId :: a -> Misc.UniqueId
-  description :: a -> String
-  cost :: a -> Misc.Cost
-
-data Discovery = Discovery
-  { idImpl :: Misc.UniqueId,
-    descriptionImpl :: String
+data Collectable = Collectable
+  { uniqueId :: Misc.UniqueId,
+    description :: String,
+    cost :: Misc.Cost
   }
 
 -- private
 zerocost :: Misc.Cost
 zerocost = Map.fromList [(Misc.MONEY, 0), (Misc.SCIENCE, 0), (Misc.MATERIAL, 0)]
 
-instance Collectable Discovery where
-  uniqueId Discovery {idImpl = idImpl} = idImpl
-  description Discovery {descriptionImpl = descriptionImpl} = descriptionImpl
-  cost _ = zerocost
+discovery :: Misc.UniqueId -> String -> Collectable
+discovery uid desc =
+  Collectable
+    { uniqueId = uid,
+      description = desc,
+      cost = zerocost
+    }
 
-data Development = Development
-  { idImpl :: Misc.UniqueId,
-    descriptionImpl :: String,
-    costImpl :: Misc.Cost
-  }
-
-instance Collectable Development where
-  uniqueId Development {idImpl = idImpl} = idImpl
-  description Development {descriptionImpl = descriptionImpl} = descriptionImpl
-  cost Development {costImpl = costImpl} = costImpl
+development :: Misc.UniqueId -> String -> Misc.Cost -> Collectable
+development uid desc cost =
+  Collectable
+    { uniqueId = uid,
+      description = desc,
+      cost = cost
+    }

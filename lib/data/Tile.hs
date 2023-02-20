@@ -1,6 +1,5 @@
 module Data.Tile
   ( Rotation,
-    TileDegree (..),
     PlanetSlot (..),
     Tile (..),
     TileMap (..),
@@ -13,12 +12,8 @@ import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Misc as Misc
 import qualified Data.Player as Player
-import qualified Data.Rules as Rules
 
 type Rotation = Int -- Integer from [0, 5] representing 60 degree rotations. 0 == 0deg and 5 = 300deg
-
-data TileDegree = I | II | III
-  deriving (Read, Show, Enum, Eq, Ord)
 
 data PlanetSlot = PlanetSlot
   { resourceType :: Misc.PlanetResourceType,
@@ -37,23 +32,33 @@ data Tile = Tile
   }
 
 class TileMap a where
-  getStackCount :: a -> TileDegree -> Int
+  getStackCount :: a -> Misc.TileDegree -> Int
   getCenter :: a -> Tile
   getHomeSystem :: a -> Player.PlayerId -> Tile
   getTile :: a -> Misc.UniqueId -> Tile
   getTileAt :: a -> (Int, Int) -> Maybe.Maybe Tile
   getAllTiles :: a -> [Tile]
 
-  drawTile :: a -> TileDegree -> (a, Tile)
+  drawTile :: a -> Misc.TileDegree -> (a, Tile)
   placeTile :: a -> (Tile, Rotation) -> (Int, Int) -> a
 
 data TileMapImpl = TileMapImpl
-  { stacks :: Map.Map TileDegree [Tile],
+  { stacks :: Map.Map Misc.TileDegree [Tile],
     placements :: Map.Map (Int, Int) Misc.UniqueId,
     graph :: Map.Map Misc.UniqueId Tile,
     center :: Tile,
     homeSystems :: Map.Map Player.PlayerId Tile
   }
+
+drawTileImpl :: TileMapImpl -> Misc.TileDegree -> (TileMapImpl, Tile)
+drawTileImpl tileMap@TileMapImpl {stacks = stacks} deg = (altered, head degreeStack)
+  where
+    degreeStack = (Map.!) stacks deg
+    altered = tileMap {stacks = Map.insert deg (tail degreeStack) stacks}
+
+-- TODO do complex logic to unstub this
+placeTileImpl :: TileMapImpl -> (Tile, Rotation) -> (Int, Int) -> TileMapImpl
+placeTileImpl tileMap (t, offset) (distance, angle) = error "This Function is not Implemented!"
 
 instance TileMap TileMapImpl where
   getStackCount TileMapImpl {stacks = stacks} degree = length ((Map.!) stacks degree)
@@ -62,33 +67,29 @@ instance TileMap TileMapImpl where
   getTile TileMapImpl {graph = graph} uid = (Map.!) graph uid
   getTileAt tileMap@TileMapImpl {placements = placements} coord = Maybe.maybe Nothing (Just . getTile tileMap) (Map.lookup coord placements)
   getAllTiles TileMapImpl {graph = graph} = Map.elems graph
+  drawTile = drawTileImpl
+  placeTile = placeTileImpl
 
-  drawTile tileMap@TileMapImpl {stacks = stacks} deg = (altered, head degreeStack)
-    where
-      degreeStack = (Map.!) stacks deg
-      altered = tileMap {stacks = Map.insert deg (tail degreeStack) stacks}
-
-  -- TODO do complex logic to unstub this
-  placeTile tileMap (t, offset) (distance, angle) = error "This Function is not Implemented!"
-
-newTileMap :: Rules.Rules -> TileMapImpl
-newTileMap rulesParam =
+newTileMap :: Map.Map Misc.TileDegree [Tile] -> Tile -> Map.Map Player.PlayerId Tile -> TileMapImpl
+newTileMap stacks center homeSystems =
   TileMapImpl
-    { stacks = Map.empty, -- TODO Gen from Rules
+    { stacks = stacks,
       placements = Map.empty, -- TODO Needs HomeSystems + Placements
       graph = Map.empty, -- TODO Needs HomeSystems + Placements
-      center = newTile, -- TODO Gen from Rules
-      homeSystems = Map.empty -- TODO Gen from Rules?
+      center = center,
+      homeSystems = homeSystems
     }
+  where
+    playerCount = Map.size homeSystems
 
-newTile :: Tile
-newTile =
-  Tile
-    { id = 0, -- TODO Gen from Rules
-      disk = Nothing,
-      coordinate = (0, 0),
-      slots = [], -- TODO Gen From Rules
-      ships = [],
-      buildings = [],
-      gates = [] -- TODO Gen From Rules
-    }
+-- newTile :: Tile
+-- newTile =
+--   Tile
+--     { id = 0, -- TODO Gen from Rules
+--       disk = Nothing,
+--       coordinate = (0, 0),
+--       slots = [], -- TODO Gen From Rules
+--       ships = [],
+--       buildings = [],
+--       gates = [] -- TODO Gen From Rules
+--     }
