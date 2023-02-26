@@ -17,7 +17,8 @@ import qualified Data.Map as Map
 import qualified Data.Misc as Misc
 import qualified Data.ResearchStore as ResearchStore
 
-type PlayerId = Misc.UniqueId
+type PlayerId = Misc.UniqueId,
+type PartId = Misc.UniqueId
 
 data DiplomacyToken = REPUTATION Int | AMBASSADOR PlayerId
 
@@ -30,7 +31,7 @@ data Tech = EMPTY {-signed-} Int | TECHED ResearchStore.Research
 data ShipBonus = INITIATIVE Int | POWER Int | COMPUTER Int | SHIELD Int
 
 data ShipPart = ShipPart
-  { partId :: Misc.UniqueId,
+  { partId :: PartId,
     description :: String
   }
 

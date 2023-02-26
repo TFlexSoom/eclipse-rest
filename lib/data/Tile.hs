@@ -13,8 +13,9 @@ import qualified Data.Maybe as Maybe
 import qualified Data.Misc as Misc
 import qualified Data.Player as Player
 
-type Rotation = Int -- Integer from [0, 5] representing 60 degree rotations. 0 == 0deg and 5 = 300deg
+type Rotation = Int8 -- Integer from [0, 5] representing 60 degree rotations. 0 == 0deg and 5 = 300deg
 
+-- TODO make a Word type instead of component
 data PlanetSlot = PlanetSlot
   { resourceType :: Misc.PlanetResourceType,
     isAdvanced :: Bool,
@@ -22,10 +23,12 @@ data PlanetSlot = PlanetSlot
     isOrbital :: Bool
   }
 
+type TileId = Misc.TileId
+
 data Tile = Tile
-  { uniqueId :: Misc.UniqueId,
+  { uniqueId :: TileId,
     disk :: Maybe.Maybe Player.PlayerId,
-    coordinate :: (Int, Int),
+    coordinate :: (Int8, Int8),
     slots :: [PlanetSlot],
     ships :: [Player.Ship],
     buildings :: [Misc.Building],

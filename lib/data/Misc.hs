@@ -31,6 +31,6 @@ data Building = MONOLITH | ORBITAL | WARP_PAD
 data TileDegree = I | II | III
   deriving (Read, Show, Enum, Eq, Ord)
 
-type UniqueId = Int
+type UniqueId = Word64
 
-type Cost = Map.Map ResourceType Int
+type Cost = Map.Map ResourceType Int8
