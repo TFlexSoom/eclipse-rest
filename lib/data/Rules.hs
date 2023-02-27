@@ -9,7 +9,6 @@ import qualified Data.Collectable as Collectable
 import qualified Data.Map as Map
 import qualified Data.Misc as Misc
 import qualified Data.Player as Player
-import qualified Data.ResearchStore as ResearchStore
 import qualified Data.Tile as Tile
 
 type SpeciesId = Misc.UniqueId
@@ -30,7 +29,11 @@ data Rules = Rules
     ancientPlayer :: Player.Player,
     discovery :: [(Collectable.Discovery, Int)],
     development :: [(Collectable.Development, Int)],
-    research :: [(ResearchStore.Research, Int)],
+    research :: [(Collectable.Research, Int)],
+    startingDevelopment :: Int,
+    startingResearch :: Int,
+    researchPerTurn :: Int,
+    maxRounds :: Int,
     center :: Tile.Tile,
-    tile :: [Tile.Tile]
+    tile :: [(Misc.TileDegree, Tile.Tile)]
   }

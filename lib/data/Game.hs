@@ -1,5 +1,7 @@
 module Data.Game
-  ( Roll (..),
+  ( GameId(..),
+    PreGameSelection,
+    Roll (..),
     PlayerAction (..),
     Game (..),
     newGame,
@@ -11,11 +13,28 @@ import qualified Data.Map as Map
 import qualified Data.Maybe as Maybe
 import qualified Data.Misc as Misc
 import qualified Data.Player as Player
-import qualified Data.ResearchStore as ResearchStore
 import qualified Data.Rules as Rules
+import qualified Data.Set as Set
 import qualified Data.Tile as Tile
 
 type GameId = Misc.UniqueId
+
+data PreGameSelection = PreGameSelection 
+  { gameId :: GameId,
+    speciesSelection :: Map.Map Player.PlayerId Rules.SpeciesId,
+    playersLeftToSelect :: Set.Set Player.PlayerId
+  }
+
+newPreGameSelection :: GameId -> Rules.Rules -> PreGameSelection
+newPreGameSelection gid Rules{ numPlayers = numPlayers } = PreGameSelection 
+  { gameId = gid,
+    speciesSelection = Map.empty,
+    playersLeftToSelect = Set.fromList (take numPlayers countFromOne)
+  }
+  where countFromOne = iterate (\x -> x + 1) firstPlayerId
+
+selectSpecies :: Rules.SpeciesId -> Player.PlayerId -> Rules.Rules -> PreGameSelection -> Maybe PreGameSelection
+selectSpecies _ _ _ _ = Nothing
 
 data Roll = RED Int | ORANGE Int | YELLOW Int
 
@@ -34,7 +53,7 @@ data Token = Token
 data TokenLibrary = TokenLibrary
   { discovery :: Map.Map Collectable.DiscoveryId Collectable.Discovery,
     development :: Map.Map Collectable.DevelopmentId Collectable.Development,
-    research :: Map.Map ResearchStore.ResearchId ResearchStore.Research
+    research :: Map.Map Collectable.ResearchId Collectable.Research
   }
 
 class Game a where
@@ -46,9 +65,11 @@ class Game a where
   getCurrentTurn :: a -> Player.PlayerId
   getCurrentTurnIndex :: a -> Int
   getPhase :: a -> Misc.Phase
-  getResearchStore :: a -> ResearchStore.ResearchStore
+  getResearchStore :: a -> Collectable.ResearchStore
   getDiceRoll :: a -> [Roll]
   getTiles :: a -> Tile.TileMapImpl
+  getCurrentRound :: a -> Int
+  getMaxRounds :: a -> Int
 
   update :: a -> PlayerAction -> Maybe a
 
@@ -59,9 +80,11 @@ data GameImpl = GameImpl
     players :: Map.Map Player.PlayerId Player.Player,
     turnOrder :: [Player.PlayerId],
     currentTurn :: Int,
+    currentRound :: Int,
+    maxRounds :: Int,
     phase :: Misc.Phase,
-    researchStore :: ResearchStore.ResearchStore,
-    researchPile :: ResearchStore.ResearchStore,
+    researchStore :: Collectable.ResearchStore,
+    researchPile :: [Collectable.ResearchId],
     discoveryPile :: [Collectable.DiscoveryId],
     developmentPile :: [Collectable.DevelopmentId],
     recentRoll :: [Roll],
@@ -100,6 +123,8 @@ instance Game GameImpl where
   getResearchStore GameImpl {researchStore = researchStore} = researchStore
   getDiceRoll GameImpl {recentRoll = recentRoll} = recentRoll
   getTiles GameImpl {tileMap = tileMap} = tileMap
+  getCurrentRound GameImpl {currentRound = currentRound} = currentRound
+  getMaxRounds GameImpl {maxRounds = maxRounds} = maxRounds
   update = updateGameImpl
 
 inflate :: [(a, Int)] -> [a]
@@ -112,19 +137,28 @@ shuffle = id
 indexMap :: [a] -> Map Misc.UniqueId a
 indexMap = (.) (snd) (foldl (\elem (cnt, m) -> (cnt + 1, Map.insert cnt elem m)) (1, Map.empty))
 
-newGame :: Rules.Rules -> GameId -> GameImpl
-newGame Rules 
+newGame :: Rules.Rules -> PreGameSelection -> GameImpl
+newGame  
+  Rules 
   { numPlayers = numPlayers, -- :: Int,
     species = species, -- :: [Species],
     defaultPlayer = defaultPlayer, -- :: Player.Player,
     ancientPlayer = ancientPlayer, -- :: Player.Player,
     discovery = discovery, -- :: [(Collectable.Discovery, Int)],
     development =  development, -- :: [(Collectable.Development, Int)],
-    research = research, -- :: [(ResearchStore.Research, Int)],
+    research = research, -- :: [(Collectable.Research, Int)],
+    startingDevelopment = startingDevelopment, -- :: Int,
+    startingResearch = startingResearch, -- :: Int,
+    researchPerTurn = researchPerTurn, -- :: Int,
+    maxRounds = maxRounds, -- :: Int,
     center = center, -- :: Tile.Tile,
-    tiles = tiles -- :: [Tile.Tile]
+    tiles = tiles -- :: [(Misc.TileDegree, Tile.Tile)]
   } 
-  gid =
+  PreGameSelection
+  { gameId = gameId,
+    speciesSelection = speciesSelection
+  }
+   =
     GameImpl
       { gameId = gid,
         tokenLibrary = TokenLibrary 
@@ -134,19 +168,21 @@ newGame Rules
         },
         ownership = Map.empty,
         players = indexMap ancientPlayer:(replicate numPlayers defaultPlayer),
-        turnOrder = take numPlayers (iterate (\x -> x + 1) 0),
-        currentTurn = 0,
+        turnOrder = take numPlayers (iterate (\x -> x + 1) startingTurn),
+        currentTurn = startingTurn,
+        currentRound = 1,
+        maxRounds = maxRounds,
         phase = ACTION_PHASE,
-        researchStore = take 10 researchShuffled, -- TODO 10 is a magic number
-        researchPile = drop 10 researchShuffled, -- TODO 10 is a magic number
+        researchStore = take startingResearch researchShuffled, 
+        researchPile = drop startingResearch researchShuffled,
         discoveryPile = shuffle (Map.keys discovery),
         developmentPile = shuffle (Map.keys development),
         recentRoll = [],
-        tileMap = tileMapSetup
+        tileMap = Nothing
       }
     where
+      startingTurn = 1 -- Player 0 is the Ancient Player
       discoveryMap = indexMap (inflate discovery)
-      developmentMap = indexMap (inflate development)
+      developmentMap = indexMap (take startingDevelopment (inflate development))
       research = indexMap (inflate research)
       researchShuffled = shuffle (Map.keys research)
-      tileMapSetup = Tile.newTileMap

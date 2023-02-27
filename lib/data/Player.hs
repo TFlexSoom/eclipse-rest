@@ -15,7 +15,6 @@ where
 
 import qualified Data.Map as Map
 import qualified Data.Misc as Misc
-import qualified Data.ResearchStore as ResearchStore
 
 type PlayerId = Misc.UniqueId,
 type PartId = Misc.UniqueId
@@ -26,7 +25,7 @@ data DiplomacySlot = FILLED DiplomacyToken | OPEN | OPEN_REPUTATION | OPEN_AMBAS
 
 data Influence = TAX {-signed-} Int | INFLUENCED {-signed-} Int
 
-data Tech = EMPTY {-signed-} Int | TECHED ResearchStore.Research
+data Tech = EMPTY {-signed-} Int | TECHED Collectable.ResearchId
 
 data ShipBonus = INITIATIVE Int | POWER Int | COMPUTER Int | SHIELD Int
 
@@ -49,7 +48,8 @@ data ShipBlueprints = ShipBlueprints
   }
 
 data Player = Player
-  { description :: String,
+  { playerId :: PlayerId,
+    description :: String,
     diplomacy :: [DiplomacySlot],
     ambassadors :: Int,
     colonyShips :: [Bool],
@@ -58,7 +58,7 @@ data Player = Player
     neutrino :: Misc.Cost,
     influence :: [Influence],
     blueprints :: ShipBlueprints,
-    tech :: Map.Map ResearchStore.ResearchType [Tech]
+    tech :: Map.Map Collectable.ResearchType [Tech]
   }
 
 data Ship = Ship
