@@ -23,7 +23,7 @@ data PlanetSlot = PlanetSlot
     isOrbital :: Bool
   }
 
-type TileId = Misc.TileId
+type TileId = Misc.UniqueId
 
 data Tile = Tile
   { uniqueId :: TileId,
@@ -35,11 +35,15 @@ data Tile = Tile
     gates :: [Bool]
   }
 
+applyRot :: Rotation -> Tile -> Tile
+applyRot 0 tile = tile
+applyRot rot tile@Tile{gates=a:b:c:d:e:f:[]} | rot > 0 = applyRot (rot - 1) tile{gates=[f,a,b,c,d,e]} 
+
 class TileMap a where
   getStackCount :: a -> Misc.TileDegree -> Int
   getCenter :: a -> Tile
   getHomeSystem :: a -> Player.PlayerId -> Tile
-  getTile :: a -> Misc.UniqueId -> Tile
+  getTile :: a -> TileId -> Tile
   getTileAt :: a -> (Int, Int) -> Maybe.Maybe Tile
   getAllTiles :: a -> [Tile]
 
@@ -48,8 +52,8 @@ class TileMap a where
 
 data TileMapImpl = TileMapImpl
   { stacks :: Map.Map Misc.TileDegree [Tile],
-    placements :: Map.Map (Int, Int) Misc.UniqueId,
-    graph :: Map.Map Misc.UniqueId Tile,
+    placements :: Map.Map (Int, Int) TileId,
+    graph :: Map.Map TileId Tile,
     center :: Tile,
     homeSystems :: Map.Map Player.PlayerId Tile
   }
@@ -74,14 +78,59 @@ instance TileMap TileMapImpl where
   drawTile = drawTileImpl
   placeTile = placeTileImpl
 
+getStartCoords :: [Tile] -> [((Int8, Int8), Int8, Tile)]
+getStartCoords [] = []
+getStartCoords z:[] = ((0, 0), 0, z)
+getStartCoords y:z:[] = ((0, 2), 0, y):(getStartCoords [z])
+getStartCoords x:y:z:[] = ((0, (-2)), 0, x):(getStartCoords [y,z])
+getStartCoords w:x:y:z:[] = (((-2), (-1)), 1, w):((2, (-1)), 2, x):(getStartCoords [y,z])
+getStartCoords v:w:x:y:z:[] = (((-2), (-1)), 1, v):((0, (-2)), 0, w):((2, (1)), 1, x):(getStartCoords [y,z])
+getStartCoords u:v:w:x:y:z:[] = (((-2), 1), 2, u):(getStartCoords [v,w,x,y,z])
+getStartCoords t:u:v:w:x:y:z:[] = ((2, (-1)), 2, t):(getStartCoords [u,v,w,x,y,z])
+getStartCoords s:t:u:v:w:x:y:z:[] = 
+  (((-2), 2), 2, s):
+  (((-3), (-1)), 1, t):
+  (((-2), (-2)), 0, u):
+  ((0, (-3)), 0, v):
+  ((2, (-2)), 2, w):
+  ((3, 0), 1, x):
+  ((2, 2), 0, y):
+  (getStartCoords [z])
+getStartCoords r:s:t:u:v:w:x:y:z:[] = 
+  (((-2), 2), 2, r):
+  (((-3), (-1)), 1, s):
+  (((-2), (-2)), 0, t):
+  ((0, (-3)), 0, u):
+  ((2, (-2)), 2, v):
+  ((3, 0), 1, w):
+  ((2, 2), 0, x):
+  ((0, 3), 0, y):
+  (getStartCoords [z])
+getStartCoords q:r:s:t:u:v:w:x:y:z:[] = 
+  (((-1), 2), 2, q):
+  (((-3), 1), 2, r):
+  (((-2), (-2)), 1, s):
+  (((-3), (-1)), 1, t):
+  ((0, (-3)), 0, u):
+  ((2, (-2)), 2, v):
+  ((3, (-1)), 1, w):
+  ((3, 1), 1, x):
+  ((1, 2), 1, y):
+  (getStartCoords [z])
+getStartCoords _ = error "Unknown Configuration for 10+ Player Game"
+
 newTileMap :: Map.Map Misc.TileDegree [Tile] -> Tile -> Map.Map Player.PlayerId Tile -> TileMapImpl
 newTileMap stacks center homeSystems =
   TileMapImpl
     { stacks = stacks,
-      placements = Map.empty, -- TODO Needs HomeSystems + Placements
-      graph = Map.empty, -- TODO Needs HomeSystems + Placements
+      placements = Map.fromList coordsTupl,
+      graph = Map.fromList $ zip tileList (take (len tileList) idGen),
       center = center,
       homeSystems = homeSystems
     }
   where
+    idGen = iterate (\x -> x + 1) 0
+    tileList = center : (Map.elems homeSystems)
     playerCount = Map.size homeSystems
+    coordsAndRotation = getStartCoords tileList
+    coordsTupl = map (\(coord, rot, tile) -> (coord, applyRot rot tile)) coordsAndRotation
