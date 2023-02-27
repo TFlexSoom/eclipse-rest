@@ -14,8 +14,7 @@ import qualified Data.Tile as Tile
 type SpeciesId = Misc.UniqueId
 
 data Species = Species
-  { uniqueId :: SpeciesId,
-    name :: String,
+  { name :: String,
     description :: String,
     rulesDescription :: String,
     homeSystem :: Tile.Tile,
@@ -24,7 +23,7 @@ data Species = Species
 
 data Rules = Rules
   { numPlayers :: Int,
-    species :: [Species],
+    species :: Map.Map SpeciesId Species,
     defaultPlayer :: Player.Player,
     ancientPlayer :: Player.Player,
     discovery :: [(Collectable.Discovery, Int)],

@@ -34,9 +34,18 @@ newPreGameSelection gid Rules{ numPlayers = numPlayers } = PreGameSelection
   where countFromOne = iterate (\x -> x + 1) firstPlayerId
 
 selectSpecies :: Rules.SpeciesId -> Player.PlayerId -> Rules.Rules -> PreGameSelection -> Maybe PreGameSelection
-selectSpecies _ _ _ _ = Nothing
+selectSpecies 
+  sid 
+  pid 
+  Rules { species = species } 
+  preGame@PreGameSelection {speciesSelection = speciesSelection, playersLeftToSelect = playersLeftToSelect} 
+    | Map.notMember sid species = Nothing
+    | Set.notMember pid playersLeftToSelect = Nothing
+    | otherwise 
+      = preGame{speciesSelection = Map.insert pid sid speciesSelection, playersLeftToSelect = Set.delete pid playersLeftToSelect}
+  
 
-data Roll = RED Int | ORANGE Int | YELLOW Int
+data Roll = RED Int8 | ORANGE Int8 | YELLOW Int8
 
 -- TODO
 data PlayerAction = NOTHING
@@ -82,6 +91,7 @@ data GameImpl = GameImpl
     currentTurn :: Int,
     currentRound :: Int,
     maxRounds :: Int,
+    researchPerTurn :: Int,
     phase :: Misc.Phase,
     researchStore :: Collectable.ResearchStore,
     researchPile :: [Collectable.ResearchId],
@@ -141,7 +151,7 @@ newGame :: Rules.Rules -> PreGameSelection -> GameImpl
 newGame  
   Rules 
   { numPlayers = numPlayers, -- :: Int,
-    species = species, -- :: [Species],
+    species = species, -- :: Map.Map Rules.SpeciesId Rules.Species,
     defaultPlayer = defaultPlayer, -- :: Player.Player,
     ancientPlayer = ancientPlayer, -- :: Player.Player,
     discovery = discovery, -- :: [(Collectable.Discovery, Int)],
@@ -160,25 +170,26 @@ newGame
   }
    =
     GameImpl
-      { gameId = gid,
+      { gameId = gameId,
         tokenLibrary = TokenLibrary 
         { discovery = discoveryMap,
           development = developmentMap,
           research = researchMap 
         },
         ownership = Map.empty,
-        players = indexMap ancientPlayer:(replicate numPlayers defaultPlayer),
+        players = playerDefaultMap,
         turnOrder = take numPlayers (iterate (\x -> x + 1) startingTurn),
         currentTurn = startingTurn,
         currentRound = 1,
         maxRounds = maxRounds,
+        researchPerTurn = researchPerTurn,
         phase = ACTION_PHASE,
         researchStore = take startingResearch researchShuffled, 
         researchPile = drop startingResearch researchShuffled,
         discoveryPile = shuffle (Map.keys discovery),
         developmentPile = shuffle (Map.keys development),
         recentRoll = [],
-        tileMap = Nothing
+        tileMap = Tile.newTileMap tilePilesShuffled center selectedHomeworlds
       }
     where
       startingTurn = 1 -- Player 0 is the Ancient Player
@@ -186,3 +197,7 @@ newGame
       developmentMap = indexMap (take startingDevelopment (inflate development))
       research = indexMap (inflate research)
       researchShuffled = shuffle (Map.keys research)
+      selectedHomeworlds = Map.map (Map.(!) species) speciesSelection
+      tilePiles = foldr (\(deg, tile) dict -> Map.update ((:) tile) deg dict) (Map.fromList [(Misc.I, []), (Misc.II, []), (Misc.III, [])]) tiles
+      tilePilesShuffled = Map.map shuffle tilePiles 
+      playerDefaultMap = indexMap ancientPlayer:(replicate numPlayers defaultPlayer)
