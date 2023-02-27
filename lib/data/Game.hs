@@ -186,18 +186,20 @@ newGame
         phase = ACTION_PHASE,
         researchStore = take startingResearch researchShuffled, 
         researchPile = drop startingResearch researchShuffled,
-        discoveryPile = shuffle (Map.keys discovery),
-        developmentPile = shuffle (Map.keys development),
+        discoveryPile = shuffle $ Map.keys discovery,
+        developmentPile = shuffle $ Map.keys development,
         recentRoll = [],
         tileMap = Tile.newTileMap tilePilesShuffled center selectedHomeworlds
       }
     where
       startingTurn = 1 -- Player 0 is the Ancient Player
-      discoveryMap = indexMap (inflate discovery)
-      developmentMap = indexMap (take startingDevelopment (inflate development))
-      research = indexMap (inflate research)
-      researchShuffled = shuffle (Map.keys research)
-      selectedHomeworlds = Map.map (Map.(!) species) speciesSelection
+      discoveryMap = indexMap $ inflate discovery
+      developmentMap = indexMap $ take startingDevelopment $ inflate development
+      research = indexMap $ inflate research
+      researchShuffled = shuffle $ Map.keys research
+      selectedHomeworlds = Map.map ((\Species{homeSystem=homeSystem} -> homeSystem) . Map.(!) species) speciesSelection
       tilePiles = foldr (\(deg, tile) dict -> Map.update ((:) tile) deg dict) (Map.fromList [(Misc.I, []), (Misc.II, []), (Misc.III, [])]) tiles
       tilePilesShuffled = Map.map shuffle tilePiles 
       playerDefaultMap = indexMap ancientPlayer:(replicate numPlayers defaultPlayer)
+      playerChanges pid = (\Species{bonuses=bonuses} -> bonuses) $ Map.(!) (Map.(!) pid speciesSelection) species
+      playerApplied = Map.mapWithKey (\pid player -> foldr ($) player (playerChanges pid)) playerDefaultMap
