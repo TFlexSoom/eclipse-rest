@@ -1,19 +1,24 @@
 module Data.Collectable
-  ( Research,
+  ( ResearchType,
+    DiscoveryId,
+    DevelopmentId,
+    ResearchId,
+    Research (..),
     ResearchStore,
-    Discovery,
-    Development,
+    Discovery (..),
+    Development (..),
   )
 where
 
+import qualified Data.Int as Int
 import qualified Data.Map as Map
 import qualified Data.Misc as Misc
 
-type ResearchType = Int -- 0 -> None | 1 -> Military | 2 -> Efficiency | 3 -> Grid
+type ResearchType = Int.Int8 -- 0 -> None | 1 -> Military | 2 -> Efficiency | 3 -> Grid
 
 type DiscoveryId = Misc.UniqueId
 
-type DevelopmentId = Misc.DevelopmentId
+type DevelopmentId = Misc.UniqueId
 
 type ResearchId = Misc.UniqueId
 

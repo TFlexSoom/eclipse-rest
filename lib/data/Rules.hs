@@ -1,11 +1,12 @@
 module Data.Rules
-  ( Species (..),
+  ( SpeciesId,
+    Species (..),
     Rules (..),
-    getTileMapFromRules,
   )
 where
 
 import qualified Data.Collectable as Collectable
+import qualified Data.Int as Int
 import qualified Data.Map as Map
 import qualified Data.Misc as Misc
 import qualified Data.Player as Player
@@ -29,10 +30,10 @@ data Rules = Rules
     discovery :: [(Collectable.Discovery, Int)],
     development :: [(Collectable.Development, Int)],
     research :: [(Collectable.Research, Int)],
-    startingDevelopment :: Int,
-    startingResearch :: Int,
-    researchPerTurn :: Int,
-    maxRounds :: Int,
+    startingDevelopment :: Int.Int8,
+    startingResearch :: Int.Int8,
+    researchPerTurn :: Int.Int8,
+    maxRounds :: Int.Int8,
     center :: Tile.Tile,
     tile :: [(Misc.TileDegree, Tile.Tile)]
   }

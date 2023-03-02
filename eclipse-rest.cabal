@@ -24,12 +24,12 @@ library eclipse-lib
     , Data.Game
     , Data.Misc
     , Data.Player
-    , Data.ResearchStore
     , Data.Rules
     , Data.Tile
   build-depends: 
       base ^>=4.16.4.0
     , containers
+    , parsec ^>=3.1.0
   default-language: Haskell2010
   default-extensions: 
     DuplicateRecordFields

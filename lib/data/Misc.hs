@@ -10,7 +10,9 @@ module Data.Misc
   )
 where
 
+import qualified Data.Int as Int
 import qualified Data.Map as Map
+import qualified Data.Word as Word
 
 data ResourceType = MONEY | SCIENCE | MATERIAL
   deriving (Read, Show, Enum, Eq, Ord)
@@ -31,6 +33,6 @@ data Building = MONOLITH | ORBITAL | WARP_PAD
 data TileDegree = I | II | III
   deriving (Read, Show, Enum, Eq, Ord)
 
-type UniqueId = Word64
+type UniqueId = Word.Word64
 
-type Cost = Map.Map ResourceType Int8
+type Cost = Map.Map ResourceType Int.Int8

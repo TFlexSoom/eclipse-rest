@@ -40,7 +40,9 @@ packages:
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
 #
-# extra-deps: []
+extra-deps:
+  - parsec-3.1.16.1
+  - syb-0.7.2.2@sha256:bc800dbd35a17b652082f7f9790fd20d196ea0f44daaa7d5ac46491d8ecc7347,3815
 
 # Override default flag values for local packages and extra-deps
 # flags: {}
